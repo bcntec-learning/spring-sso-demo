@@ -9,7 +9,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
-import javax.persistence.OneToMany;
+import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 
 import org.springframework.security.oauth2.common.OAuth2RefreshToken;
@@ -44,7 +44,7 @@ public class OAuth2AccessTokenEntity {
 
 	private transient OAuth2RefreshToken refreshToken;
 
-	@OneToMany(fetch = FetchType.EAGER)
+	@ManyToMany(fetch = FetchType.EAGER)
 	private Set<TokenScopeEntity> scope;
 
 	private transient Map<String, Object> additionalInformation = Collections.emptyMap();
