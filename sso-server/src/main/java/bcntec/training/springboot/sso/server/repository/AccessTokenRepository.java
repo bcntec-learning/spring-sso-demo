@@ -1,4 +1,4 @@
-package bcntec.training.springboot.sso.server.security;
+package bcntec.training.springboot.sso.server.repository;
 
 import java.util.List;
 
