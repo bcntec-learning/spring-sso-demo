@@ -12,8 +12,14 @@ import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.stereotype.Component;
 
+import bcntec.training.springboot.sso.server.converter.oauth2.OAuth2AccessTokenEntityReadConverter;
+import bcntec.training.springboot.sso.server.converter.oauth2.OAuth2AccessTokenEntityWriteConverter;
 import bcntec.training.springboot.sso.server.domain.AuthenticationAccessToken;
+import bcntec.training.springboot.sso.server.domain.TokenScopeEntity;
 import bcntec.training.springboot.sso.server.domain.User;
+import bcntec.training.springboot.sso.server.repository.AccessTokenRepository;
+import bcntec.training.springboot.sso.server.repository.OAuth2AccessTokenRepository;
+import bcntec.training.springboot.sso.server.repository.TokenScopeRepository;
 
 @Component
 public class H2TokenStore implements TokenStore {
@@ -21,6 +27,18 @@ public class H2TokenStore implements TokenStore {
 	@Autowired
 	private AccessTokenRepository accessTokenRepository;
 	
+	@Autowired
+	private OAuth2AccessTokenRepository oAuth2AccessTokenRepository;
+	
+	@Autowired
+	private TokenScopeRepository tokenScopeRepository;
+	
+	@Autowired
+	private OAuth2AccessTokenEntityReadConverter oAuth2AccessTokenEntityReadConverter;
+
+	@Autowired
+	private OAuth2AccessTokenEntityWriteConverter oAuth2AccessTokenEntityWriteConverter;
+
 	@Override
 	public OAuth2Authentication readAuthentication(OAuth2AccessToken token) {
 		return this.readAuthentication(token.getValue());
@@ -35,7 +53,7 @@ public class H2TokenStore implements TokenStore {
 	public void storeAccessToken(OAuth2AccessToken accessToken, OAuth2Authentication authToken) {
 		AuthenticationAccessToken token = new AuthenticationAccessToken();
 		token.setTokenId(accessToken.getValue());
-		token.setOAuth2AccessToken(accessToken);
+		token.setOAuth2AccessToken(oAuth2AccessTokenEntityWriteConverter.convert(accessToken));
 
 //		OAuth2RefreshToken rt = accessToken.getRefreshToken();
 //		if (null != rt) {
@@ -56,6 +74,11 @@ public class H2TokenStore implements TokenStore {
 			token.setClientId(authToken.getOAuth2Request().getClientId());
 			token.setUserName(((UserDetails) authToken.getUserAuthentication().getPrincipal()).getUsername());
 		}
+		
+		for (TokenScopeEntity t: token.getOAuth2AccessToken().getScope()) {
+			this.tokenScopeRepository.save(t);
+		}
+		this.oAuth2AccessTokenRepository.save(token.getOAuth2AccessToken());
 		this.accessTokenRepository.save(token);
 	}
 
@@ -64,7 +87,7 @@ public class H2TokenStore implements TokenStore {
 		AuthenticationAccessToken token = this.accessTokenRepository.findByTokenId(tokenValue);
 		OAuth2AccessToken accessToken = null;
 		if (null != token) {
-			accessToken = token.getOAuth2AccessToken();
+			accessToken = oAuth2AccessTokenEntityReadConverter.convert(token.getOAuth2AccessToken());
 		}
 		return accessToken;
 	}
@@ -112,7 +135,7 @@ public class H2TokenStore implements TokenStore {
 
 		// there can only exist one token. It needs to be returned unless it can be expired.
 		if (!tokens.isEmpty()) {
-			return tokens.get(0).getOAuth2AccessToken();
+			return this.oAuth2AccessTokenEntityReadConverter.convert(tokens.get(0).getOAuth2AccessToken());
 		}
 
 		// If the token does not exist return null to create a new one.
