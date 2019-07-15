@@ -19,5 +19,8 @@ public class UserAuthenticationEntity {
 	
 	@Column
 	private boolean authenticated;
+	
+	@Column
+	private String name;
 
 }

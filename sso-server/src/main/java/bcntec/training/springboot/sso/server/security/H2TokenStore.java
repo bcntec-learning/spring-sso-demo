@@ -14,18 +14,22 @@ import org.springframework.stereotype.Component;
 
 import bcntec.training.springboot.sso.server.converter.oauth2.OAuth2AccessTokenEntityReadConverter;
 import bcntec.training.springboot.sso.server.converter.oauth2.OAuth2AccessTokenEntityWriteConverter;
-import bcntec.training.springboot.sso.server.converter.oauth2.OAuth2RequestEntityWriteConverter;
+import bcntec.training.springboot.sso.server.converter.oauth2.OAuth2AuthenticationEntityReadConverter;
+import bcntec.training.springboot.sso.server.converter.oauth2.OAuth2AuthenticationEntityWriteConverter;
 import bcntec.training.springboot.sso.server.domain.AuthenticationAccessToken;
+import bcntec.training.springboot.sso.server.domain.OAuth2AuthenticationEntity;
 import bcntec.training.springboot.sso.server.domain.TokenScopeEntity;
 import bcntec.training.springboot.sso.server.domain.User;
 import bcntec.training.springboot.sso.server.repository.AccessTokenRepository;
 import bcntec.training.springboot.sso.server.repository.OAuth2AccessTokenRepository;
+import bcntec.training.springboot.sso.server.repository.OAuth2AuthenticationRepository;
 import bcntec.training.springboot.sso.server.repository.OAuth2RequestRepository;
 import bcntec.training.springboot.sso.server.repository.TokenScopeRepository;
+import bcntec.training.springboot.sso.server.repository.UserAuthenticationRepository;
 
 @Component
 public class H2TokenStore implements TokenStore {
-
+	
 	@Autowired
 	private AccessTokenRepository accessTokenRepository;
 	
@@ -39,15 +43,23 @@ public class H2TokenStore implements TokenStore {
 	private OAuth2RequestRepository oAuth2RequestRepository;
 	
 	@Autowired
+	private OAuth2AuthenticationRepository oAuth2AuthenticationRepository; 
+	
+	@Autowired 
+	private UserAuthenticationRepository userAuthenticationRepository;
+	
+	@Autowired
 	private OAuth2AccessTokenEntityReadConverter oAuth2AccessTokenEntityReadConverter;
 
 	@Autowired
 	private OAuth2AccessTokenEntityWriteConverter oAuth2AccessTokenEntityWriteConverter;
 	
 	@Autowired
-	private OAuth2RequestEntityWriteConverter oAuth2RequestEntityWriteConverter;
+	private OAuth2AuthenticationEntityWriteConverter oAuth2AuthenticationEntityWriteConverter;
 	
-
+	@Autowired
+	private OAuth2AuthenticationEntityReadConverter oAuth2AuthenticationEntityReadConverter;
+	
 	@Override
 	public OAuth2Authentication readAuthentication(OAuth2AccessToken token) {
 		return this.readAuthentication(token.getValue());
@@ -55,7 +67,8 @@ public class H2TokenStore implements TokenStore {
 
 	@Override
 	public OAuth2Authentication readAuthentication(String token) {
-		return this.accessTokenRepository.findByTokenId(token).getAuthentication();
+		OAuth2AuthenticationEntity entity = this.accessTokenRepository.findByTokenId(token).getAuthentication();
+		return oAuth2AuthenticationEntityReadConverter.convert(entity); 
 	}
 
 	@Override
@@ -70,7 +83,9 @@ public class H2TokenStore implements TokenStore {
 //			token.setRefreshToken(accessToken.getRefreshToken());
 //		}
 
-		token.setAuthentication(authToken);
+		OAuth2AuthenticationEntity authTokenEntity = 
+				this.oAuth2AuthenticationEntityWriteConverter.convert(authToken);
+		token.setAuthentication(authTokenEntity);
 
 		@SuppressWarnings("unchecked")
 		Map<String, String> details = (Map<String, String>) authToken.getUserAuthentication().getDetails();
@@ -84,15 +99,13 @@ public class H2TokenStore implements TokenStore {
 			token.setUserName(((UserDetails) authToken.getUserAuthentication().getPrincipal()).getUsername());
 		}
 		
-		
-		// TODO Move to new service
 		for (TokenScopeEntity t: token.getOAuth2AccessToken().getScope()) {
 			this.tokenScopeRepository.save(t);
 		}
 		this.oAuth2AccessTokenRepository.save(token.getOAuth2AccessToken());
-		this.oAuth2RequestRepository.save(
-				oAuth2RequestEntityWriteConverter.convert(
-						token.getAuthentication().getOAuth2Request()));
+		this.oAuth2RequestRepository.save(authTokenEntity.getStoredRequest());
+		this.userAuthenticationRepository.save(authTokenEntity.getUserAuthentication());
+		this.oAuth2AuthenticationRepository.save(authTokenEntity);
 		this.accessTokenRepository.save(token);
 	}
 
