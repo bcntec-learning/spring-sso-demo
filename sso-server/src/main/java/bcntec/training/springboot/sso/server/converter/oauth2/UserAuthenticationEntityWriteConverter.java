@@ -14,6 +14,7 @@ public class UserAuthenticationEntityWriteConverter implements Converter<Authent
 		UserAuthenticationEntity entity = new UserAuthenticationEntity();
 		// TODO Convert missing fields.
 		entity.setName(source.getName());
+		entity.setAuthenticated(source.isAuthenticated());
 		return entity;
 	}
 
