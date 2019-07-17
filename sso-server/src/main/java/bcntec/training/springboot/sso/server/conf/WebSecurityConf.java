@@ -3,6 +3,8 @@ package bcntec.training.springboot.sso.server.conf;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -16,7 +18,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(securedEnabled = true)
-//@Order(Ordered.HIGHEST_PRECEDENCE) // Set highest precedence here to handle the authorization and login endpoints here. Otherwise, the resource server configuration will kick in for the /login endpoint and you will get “Full Authentication Required” response
+@Order(Ordered.HIGHEST_PRECEDENCE) // Set highest precedence here to handle the authorization and login endpoints here. Otherwise, the resource server configuration will kick in for the /login endpoint and you will get “Full Authentication Required” response
 public class WebSecurityConf extends WebSecurityConfigurerAdapter {
 
 	@Autowired

@@ -31,7 +31,6 @@ public class ResourceServerConfiguration extends ResourceServerConfigurerAdapter
     	.antMatcher("/private/api/**")
         .authorizeRequests()
         	.antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-        	.antMatchers("/private/api/admin/**").hasRole("ADMIN")
         	.anyRequest().authenticated();
 	}
 
