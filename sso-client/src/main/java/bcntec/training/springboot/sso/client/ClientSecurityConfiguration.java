@@ -6,6 +6,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 
 @Configuration
 public class ClientSecurityConfiguration extends WebSecurityConfigurerAdapter {
+
     @Override
     public void configure(HttpSecurity http) throws Exception {
         http.antMatcher("/**")
@@ -17,4 +18,5 @@ public class ClientSecurityConfiguration extends WebSecurityConfigurerAdapter {
             .and()
             .oauth2Login();
     }
+
 }

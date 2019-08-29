@@ -18,13 +18,13 @@ public class ClientController {
     }
 
     @GetMapping("/")
-    public String home() {
+    public String home(Principal principal) {
         return "index";
     }
 
-    @RequestMapping("/securedPage")
+    @RequestMapping("/secured-page")
     public String securedPage(Model model, Principal principal) {
-        return "securedPage";
+        return "secured-page";
     }
 
 
