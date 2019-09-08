@@ -10,18 +10,18 @@ import org.springframework.security.oauth2.config.annotation.web.configurers.Aut
 
 @Configuration
 @EnableAuthorizationServer
-public class AuthenticationServerConfiguration extends AuthorizationServerConfigurerAdapter {
+public class ServerAuthorizationConfiguration extends AuthorizationServerConfigurerAdapter {
 
     @Value("${user.oauth.clientId}")
     private String clientID;
     @Value("${user.oauth.clientSecret}")
     private String clientSecret;
     @Value("${user.oauth.redirectUris}")
-    private String RedirectURLs;
+    private String redirectURLs;
 
     private final PasswordEncoder passwordEncoder;
 
-    public AuthenticationServerConfiguration(PasswordEncoder passwordEncoder) {
+    public ServerAuthorizationConfiguration(PasswordEncoder passwordEncoder) {
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -39,6 +39,6 @@ public class AuthenticationServerConfiguration extends AuthorizationServerConfig
                 .authorizedGrantTypes("authorization_code", "refresh_token", "password","client_credentials")
                 .scopes("user_info")
                 .autoApprove(true)
-                .redirectUris(RedirectURLs);
+                .redirectUris(redirectURLs);
     }
 }
