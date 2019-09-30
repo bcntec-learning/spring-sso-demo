@@ -13,7 +13,7 @@ spring:
           custom:
             clientId: demo-client
             client-secret: secret
-            client-name: Auth Server
+            client-name: SSO Client
             scope: user_info
             provider: custom
             redirect-uri-template: http://localhost:8081/client/login/oauth2/code/
