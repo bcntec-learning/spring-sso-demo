@@ -22,12 +22,15 @@ public class ServerSecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.requestMatchers()
-            .antMatchers("/login", "/oauth/authorize")
+            .antMatchers("/login", "/my-login", "/oauth/authorize")
             .and()
             .authorizeRequests()
             .anyRequest().authenticated()
             .and()
-            .formLogin().permitAll();
+            .formLogin()
+                .loginPage("/my-login")
+                .loginProcessingUrl("/my-login")
+                .permitAll();
     }
 
     @Override

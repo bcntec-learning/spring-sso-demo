@@ -2,10 +2,7 @@ package bcntec.training.springboot.sso.server;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 
@@ -28,5 +25,10 @@ public class ServerController {
         return "secured-page";
     }
 
+
+    @GetMapping("/my-login")
+    public String myLogin() {
+        return "my-login";
+    }
 
 }
