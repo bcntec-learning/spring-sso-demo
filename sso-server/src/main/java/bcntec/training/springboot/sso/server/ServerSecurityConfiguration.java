@@ -24,12 +24,14 @@ public class ServerSecurityConfiguration extends WebSecurityConfigurerAdapter {
         http.requestMatchers()
             .antMatchers("/login", "/my-login", "/oauth/authorize")
             .and()
+                .csrf().disable() //todo put on form
             .authorizeRequests()
             .anyRequest().authenticated()
             .and()
             .formLogin()
                 .loginPage("/my-login")
-                .loginProcessingUrl("/my-login")
+
+                .successForwardUrl("/my-login") //todo ??????
                 .permitAll();
     }
 
