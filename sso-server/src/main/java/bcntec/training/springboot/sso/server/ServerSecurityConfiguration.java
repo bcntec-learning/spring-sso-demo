@@ -22,25 +22,23 @@ public class ServerSecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.requestMatchers()
-            .antMatchers("/login", "/my-login", "/oauth/authorize")
-            .and()
-                .csrf().disable() //todo put on form
-            .authorizeRequests()
-            .anyRequest().authenticated()
-            .and()
-            .formLogin()
+                .antMatchers("/login", "/my-login", "/oauth/authorize")
+                .and()//.csrf().disable() //todo put on form
+                .authorizeRequests()
+                .anyRequest().authenticated()
+                .and()
+                .formLogin()
                 .loginPage("/my-login")
-
-                .successForwardUrl("/my-login") //todo ??????
+                //.successForwardUrl("/my-login") //todo ??????
                 .permitAll();
     }
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.inMemoryAuthentication()
-            .withUser(username)
-            .password(password)
-            .roles("USER");
+                .withUser(username)
+                .password(password)
+                .roles("USER");
     }
 
     @Bean
